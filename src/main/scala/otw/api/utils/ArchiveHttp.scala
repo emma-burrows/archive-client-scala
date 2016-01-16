@@ -13,7 +13,9 @@ private[api] case class ArchiveHttp(archiveToken: String, archiveApiHost: String
         .setHeader("Authorization", s"Token token=$archiveToken")
         .GET
 
-    Http.configure(_.setFollowRedirect(true))(request OK as.String)
+    Http.configure(_.setFollowRedirect(true)){
+      request > (x => HttpStatusWithJsonBody(x.getStatusCode, as.json4s.Json(x)))
+    }.either
   }
 
   def post(urlPath: String, jsonBody: String) = {

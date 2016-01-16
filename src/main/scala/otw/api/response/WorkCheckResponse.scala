@@ -1,21 +1,14 @@
 package otw.api.response
 
 import org.joda.time.DateTime
-import otw.api.request.OriginalUrls
 
-case class CheckResponse(statusCode: Int,
-                         body: List[WorkCheckResponse])
+case class FindUrlResponse(statusCode: Int,
+                           body: List[ArchiveResponse]) extends ArchiveResponse
 
-sealed trait WorkCheckResponse {
+sealed trait WorkCheckResponse extends ArchiveResponse {
   val status: String
   val originalUrl: String
 }
-
-//(status: Option[String],
-//originalUrl: Option[String],
-//                            error: Option[String],
-//workUrl: Option[String],
-//created: Option[DateTime])
 
 case class WorkNotFoundResponse(status: String,
                                 originalUrl: String,

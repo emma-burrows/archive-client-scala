@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
+import org.json4s.JsonAST.{JArray, JString}
 import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeAfterAll
 import scala.concurrent.duration._
@@ -40,16 +41,16 @@ class ArchiveHttpTest extends Specification with BeforeAfterAll {
 
   def afterAll() = {}
 
-//  "ArchiveHttpTest" should {
-//    "get" in {
-//      val thing = Await.result(archiveHttp.get("works"), 500 millis)
-//      thing should_== """["url1", "url2"]"""
-//    }
-//
-//    "post" in {
-//      val thing = Await.result(archiveHttp.post("works/urls", "url1, url2"), 500 millis)
-//      thing should_== """["url1", "url2"]"""
-//    }
-//
-//  }
+  "ArchiveHttpTest" should {
+    "get" in {
+      val thing = Await.result(archiveHttp.get("works"), 500 millis)
+      thing should_== Right(HttpStatusWithJsonBody(200, JArray(List(JString("url1"), JString("url2")))))
+    }
+
+    "post" in {
+      val thing = Await.result(archiveHttp.post("works/urls", "url1, url2"), 500 millis)
+      thing should_== Right(HttpStatusWithJsonBody(200, JArray(List(JString("url1"), JString("url2")))))
+    }
+
+  }
 }

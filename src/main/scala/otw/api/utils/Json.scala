@@ -3,7 +3,6 @@ package otw.api.utils
 import java.text.SimpleDateFormat
 
 import org.json4s.native.JsonMethods._
-import org.json4s.native.Serialization
 import org.json4s.native.Serialization._
 
 private[api] class Json {
