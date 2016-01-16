@@ -15,7 +15,7 @@ private[api] case class Works(archive_token: String,
 
   val checkUrlPath = "api/v1/works/urls"
 
-  def findUrls(urls: List[String], asJson: Boolean = false) =
+  def findUrls(urls: List[String], asJson: Boolean = false)(implicit ec: ExecutionContext) =
     if (asJson) checkUrlsJson(urls) else checkUrls(urls)
 
   private def checkUrlsJson(urls: List[String])(implicit ec: ExecutionContext) = {
