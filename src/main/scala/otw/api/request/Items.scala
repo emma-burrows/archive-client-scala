@@ -8,20 +8,20 @@ case class Work(url: String,
                 summary: String,
                 fandomString: String,
                 ratingString: String,
-                CategoryString: String,
-                RelationshipString: String,
+                categoryString: String,
+                relationshipString: String,
                 characterString: String)
           extends Item
 
 case class Bookmark(url: String,
-                author: String,
-                title: String,
-                summary: String,
-                fandomString: String,
-                ratingString: String,
-                CategoryString: String,
-                RelationshipString: String,
-                characterString: String)
+                    author: String,
+                    title: String,
+                    summary: String,
+                    fandomString: String,
+                    ratingString: String,
+                    categoryString: String,
+                    relationshipString: String,
+                    characterString: String)
   extends Item
 
 

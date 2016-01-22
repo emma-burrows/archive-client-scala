@@ -16,7 +16,7 @@ class ArchiveHttpTest extends Specification with BeforeAfterAll {
   val Host = "localhost"
   val Port = 8888
 
-  val archiveHttp = ArchiveHttp("123", s"$Host:$Port")
+  val archiveHttp = new ArchiveHttp("123", s"$Host:$Port")
   val wireMockServer = new WireMockServer(wireMockConfig().port(Port))
 
   def beforeAll() = {

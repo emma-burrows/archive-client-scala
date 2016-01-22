@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat
 import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization._
 
-private[api] class Json {
+private[api] object Json {
   import org.json4s._
   implicit val formats = new DefaultFormats {
     override val dateFormatter = new SimpleDateFormat("yyyy-MM-dd")

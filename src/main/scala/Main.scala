@@ -23,10 +23,6 @@ object Main extends App {
         println("\n\nERROR\n" + ex)
     }
 
-    works.findUrls(List("http://astele.co.uk/other/ao3.html", "bar"), true) map { case resp =>
-      println("JSON " + resp)
-    }
-
   }
 }
 

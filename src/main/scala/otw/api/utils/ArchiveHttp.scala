@@ -4,7 +4,7 @@ import dispatch._, Defaults._
 import scala.collection.JavaConverters._
 
 // Abstraction on top of Dispatch in case the latter gets replaced in future
-private[api] case class ArchiveHttp(archiveToken: String, archiveApiHost: String) {
+private[api] class ArchiveHttp(archiveToken: String, archiveApiHost: String) {
 
   def get(urlPath: String) = {
     val request =
@@ -18,7 +18,7 @@ private[api] case class ArchiveHttp(archiveToken: String, archiveApiHost: String
     }.either
   }
 
-  def post(urlPath: String, jsonBody: String) = {
+  def post(urlPath: String, jsonBody: String): Future[Either[Throwable, HttpStatusWithJsonBody]] = {
     val request =
       url(s"http://$archiveApiHost/$urlPath")
         .setContentType("application/json", "utf-8")
