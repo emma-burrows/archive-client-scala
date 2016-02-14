@@ -34,13 +34,9 @@ class WorksTest extends Specification with Mockito {
     httpMock.post(anyString, argEq(Json.writeJson(OriginalUrls(List("foo")))))
       .returns {
         Future {
-          Right(
-            HttpStatusWithJsonBody(200, parse(write(List(workfound))))
-          )
+          Right(HttpStatusWithJsonBody(200, parse(write(List(workfound)))))
         }
       }
-
-    // httpMock.post(anyString, anyString) returns Future(Right(HttpStatusWithJsonBody(200, JString("foo"))))
 
     val works = Works("token", "url", Some(httpMock))
   }
