@@ -25,4 +25,6 @@ case class Bookmark(url: String,
   extends Item
 
 
-
+sealed abstract class ItemType
+case object BookmarkItem extends ItemType
+case object WorkItem extends ItemType

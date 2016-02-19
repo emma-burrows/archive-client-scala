@@ -8,7 +8,7 @@ class ArchiveClientTest extends Specification with Mockito {
 
 
   "ArchiveClientTest" should {
-    "createWorks" in {
+    "createItems" in {
       ok
     }
 

@@ -2,7 +2,7 @@ package otw.api
 
 import org.json4s.JValue
 import org.json4s.JsonAST.JNothing
-import otw.api.request.OriginalUrls
+import otw.api.request._
 import otw.api.response._
 import otw.api.utils.{ArchiveHttp, Json}
 
@@ -14,10 +14,35 @@ private[api] case class Works(archive_token: String,
 
   val http = httpClient.getOrElse(new ArchiveHttp(archive_token, archive_api_url))
   val checkUrlPath = "api/v1/works/urls"
-  val importWorkPath = "api/v1/works/urls"
+  val bookmarkPath = "api/v1/bookmarks/"
+  val workPath = "api/v1/import/"
 
   // Create works
-  def createWorks() = ???
+  def createItems(`type`: ItemType, createRequest: CreateRequest)(implicit ec: ExecutionContext) = {
+
+    val requestJson = Json.writeJson(createRequest)
+
+    val create = `type` match {
+      case WorkItem     => http.post(workPath, requestJson)
+
+      case BookmarkItem => http.post(bookmarkPath, requestJson)
+    }
+
+    create map {
+      case Right(resp) =>
+        resp.status match {
+          case status if 200 until 299 contains status =>
+            if (resp.body != JNothing)
+              Right(createResponse(resp.body))
+            else
+              Right(ArchiveApiError(resp.status, "No information returned from remote server"))
+
+          case 400 =>
+            val error = Json.readJson[Error](resp.body.children.head)
+            Right(ArchiveApiError(resp.status, error.error))
+        }
+    }
+  }
 
   // Find works on the Archive
   def checkUrls(urls: List[String])(implicit ec: ExecutionContext): Future[Either[Throwable, ArchiveResponse]] = {
@@ -44,6 +69,12 @@ private[api] case class Works(archive_token: String,
     }
   }
 
+  private def createResponse(body: JValue) =
+    body.children.map { value =>
+      println("createResponse: " + value)
+      value
+    }
+
   private def checkResponses(body: JValue): List[ArchiveResponse] = {
     body.children.map { value =>
       println("checkResponses: " + value)
@@ -55,4 +86,5 @@ private[api] case class Works(archive_token: String,
       }
     }
   }
+
 }
