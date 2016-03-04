@@ -4,6 +4,7 @@ sealed trait Item
 
 case class Work(url: String,
                 author: String,
+                email: String,
                 title: String,
                 summary: String,
                 fandomString: String,
@@ -15,6 +16,7 @@ case class Work(url: String,
 
 case class Bookmark(url: String,
                     author: String,
+                    email: String,
                     title: String,
                     summary: String,
                     fandomString: String,

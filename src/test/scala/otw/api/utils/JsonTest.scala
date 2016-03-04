@@ -9,7 +9,7 @@ class JsonTest extends Specification {
   "JsonTest" should {
     "writeJson" in {
       val thing = Foo(List("foo", "bar"))
-      Json.writeJson(thing) should_== """{ "camel_case": ["foo","bar"] }"""
+      Json.writeJson(thing) should_=== """{"camel_case":["foo","bar"]}"""
     }
 
     "readJson for String" in {

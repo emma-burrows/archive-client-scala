@@ -1,10 +1,10 @@
 package otw.api
 
 import org.json4s.JValue
-import org.json4s.JsonAST.JNothing
+import org.json4s.JsonAST.{JString, JNothing}
 import otw.api.request._
 import otw.api.response._
-import otw.api.utils.{ArchiveHttp, Json}
+import otw.api.utils.{HttpStatusWithJsonBody, ArchiveHttp, Json}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -22,8 +22,8 @@ private[api] case class Works(archive_token: String,
 
     val requestJson = Json.writeJson(createRequest)
 
-    val create = `type` match {
-      case WorkItem     => http.post(workPath, requestJson)
+    val create: dispatch.Future[Either[Throwable, HttpStatusWithJsonBody]] = `type` match {
+      case WorkItem => http.post(workPath, requestJson)
 
       case BookmarkItem => http.post(bookmarkPath, requestJson)
     }
@@ -37,10 +37,21 @@ private[api] case class Works(archive_token: String,
             else
               Right(ArchiveApiError(resp.status, "No information returned from remote server"))
 
-          case 400 =>
+          case status if 400 until 499 contains status =>
             val error = Json.readJson[Error](resp.body.children.head)
             Right(ArchiveApiError(resp.status, error.error))
         }
+
+      case Left(ex) => println(ex); Left(ex)
+    }
+  }
+
+  private def createResponse(value: JValue) = {
+    val status = Json.readJson[Map[String, JValue]](value).get("status")
+    status match {
+      case Some(JString("ok")) | Some(JString("created")) => Json.readJson[CreateResponse](value)
+      case _                                              =>
+        ArchiveApiError(400, "Cannot parse response into a valid Work object")
     }
   }
 
@@ -60,7 +71,7 @@ private[api] case class Works(archive_token: String,
             else
               Right(ArchiveApiError(resp.status, "No information returned from remote server"))
 
-          case 400 =>
+          case status if 400 until 499 contains status =>
             val error = Json.readJson[Error](resp.body.children.head)
             Right(ArchiveApiError(resp.status, error.error))
         }
@@ -69,15 +80,8 @@ private[api] case class Works(archive_token: String,
     }
   }
 
-  private def createResponse(body: JValue) =
-    body.children.map { value =>
-      println("createResponse: " + value)
-      value
-    }
-
   private def checkResponses(body: JValue): List[ArchiveResponse] = {
     body.children.map { value =>
-      println("checkResponses: " + value)
       val status = Json.readJson[Map[String, String]](value).get("status")
       status match {
         case Some("ok")        => Json.readJson[WorkFoundResponse](value)

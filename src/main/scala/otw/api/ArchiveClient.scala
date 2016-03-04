@@ -9,10 +9,11 @@ import otw.api.request.{WorkItem, Item, CreateRequest}
 import scala.concurrent.ExecutionContext
 
 case class ArchiveClient(archive_token: String,
-                         archive_api_url: String) {
+                         archive_api_url: String,
+                         worksOpt: Option[Works] = None) {
 
   implicit val formats = Serialization.formats(NoTypeHints)
-  private val worksClient = Works(archive_token, archive_api_url)
+  private val worksClient: Works = worksOpt.map{ case w: Works => w }.getOrElse(Works(archive_token, archive_api_url))
 
   def findUrls(urls: List[String])(implicit ec: ExecutionContext) = worksClient.checkUrls(urls)
 
@@ -22,7 +23,7 @@ case class ArchiveClient(archive_token: String,
                   encoding: Charset,
                   collectionNames: String,
                   works: List[Item])(implicit ec: ExecutionContext) = {
-    val charset = encoding.displayName
+    val charset = if (encoding.displayName.nonEmpty) { encoding.displayName } else "UTF-8"
     val settings = CreateRequest(archivist, sendClaimEmails, postWithoutPreview, charset, collectionNames, works)
     worksClient.createItems(WorkItem, settings)
   }
