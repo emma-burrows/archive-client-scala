@@ -11,7 +11,8 @@ case class Work(url: String,
                 ratingString: String,
                 categoryString: String,
                 relationshipString: String,
-                characterString: String)
+                characterString: String,
+                chapter_urls: List[String])
           extends Item
 
 case class Bookmark(url: String,

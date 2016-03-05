@@ -35,11 +35,15 @@ private[api] case class Works(archive_token: String,
             if (resp.body != JNothing)
               Right(createResponse(resp.body))
             else
-              Right(ArchiveApiError(resp.status, "No information returned from remote server"))
+              Right(ArchiveApiError(resp.status, List("No information returned from remote server")))
 
-          case status if 400 until 499 contains status =>
+          case status if 400 until 403 contains status =>
+            val error = Json.readJson[CreateResponse](resp.body)
+            Right(ArchiveApiError(resp.status, error.messages))
+
+          case status if 404 until 499 contains status =>
             val error = Json.readJson[Error](resp.body.children.head)
-            Right(ArchiveApiError(resp.status, error.error))
+            Right(ArchiveApiError(resp.status, List(error.error)))
         }
 
       case Left(ex) => println(ex); Left(ex)
@@ -50,8 +54,17 @@ private[api] case class Works(archive_token: String,
     val status = Json.readJson[Map[String, JValue]](value).get("status")
     status match {
       case Some(JString("ok")) | Some(JString("created")) => Json.readJson[CreateResponse](value)
+
+      case Some(JString("forbidden")) =>
+        val response = Json.readJson[CreateResponse](value)
+        ArchiveApiError(403, response.messages)
+
+      case Some(JString("bad_request")) =>
+        val response = Json.readJson[CreateResponse](value)
+        ArchiveApiError(400, response.messages)
+
       case _                                              =>
-        ArchiveApiError(400, "Cannot parse response into a valid Work object")
+        ArchiveApiError(400, List("Cannot parse response into a valid Work object"))
     }
   }
 
@@ -69,11 +82,11 @@ private[api] case class Works(archive_token: String,
             if (resp.body != JNothing)
               Right(FindUrlResponse(status, checkResponses(resp.body)))
             else
-              Right(ArchiveApiError(resp.status, "No information returned from remote server"))
+              Right(ArchiveApiError(resp.status, List("No information returned from remote server")))
 
           case status if 400 until 499 contains status =>
             val error = Json.readJson[Error](resp.body.children.head)
-            Right(ArchiveApiError(resp.status, error.error))
+            Right(ArchiveApiError(resp.status, List(error.error)))
         }
 
       case Left(ex) => println(ex); Left(ex)
@@ -86,7 +99,7 @@ private[api] case class Works(archive_token: String,
       status match {
         case Some("ok")        => Json.readJson[WorkFoundResponse](value)
         case Some("not_found") => Json.readJson[WorkNotFoundResponse](value)
-        case _                 => ArchiveApiError(400, "Cannot parse response into a valid Work object")
+        case _                 => ArchiveApiError(400, List("Cannot parse response into a valid Work object"))
       }
     }
   }

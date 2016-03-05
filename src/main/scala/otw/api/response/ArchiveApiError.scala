@@ -1,4 +1,4 @@
 package otw.api.response
 
-case class ArchiveApiError(statusCode: Int, error: String) extends ArchiveResponse
+case class ArchiveApiError(statusCode: Int, messages: List[String]) extends ArchiveResponse
 case class Error(error: String)
