@@ -4,6 +4,7 @@ import org.json4s.NoTypeHints
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.{write => swrite}
 import otw.api.ArchiveClient
+import otw.api.request.{FindWorkRequest, OriginalRef}
 
 import scala.util.Properties
 
@@ -16,7 +17,7 @@ object Main extends App {
 
     val works = ArchiveClient(archive_token, archive_api_url)
 
-    works.findUrls(List("http://astele.co.uk/other/ao3.html", "bar")) map {
+    works.findUrls(FindWorkRequest(List(OriginalRef("1", "http://astele.co.uk/other/ao3.html"), OriginalRef("2", "bar")))) map {
       case Right(resp) =>
         println("\n\nTHING\n" + resp)
       case Left(ex) =>

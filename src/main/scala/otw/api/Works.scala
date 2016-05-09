@@ -31,17 +31,18 @@ private[api] case class Works(archive_token: String,
     create map {
       case Right(resp) =>
         resp.status match {
-          case status if 200 until 299 contains status =>
+          case status if (200 until 299) contains status =>
             if (resp.body != JNothing)
               Right(createResponse(resp.body))
             else
               Right(ArchiveApiError(resp.status, List("No information returned from remote server")))
 
-          case status if 400 until 403 contains status =>
+          case status if (400 until 404) contains status =>
             val error = Json.readJson[CreateResponse](resp.body)
             Right(ArchiveApiError(resp.status, error.messages))
 
-          case status if 404 until 499 contains status =>
+          case status  =>
+            println("Other status: " + status)
             val error = Json.readJson[Error](resp.body.children.head)
             Right(ArchiveApiError(resp.status, List(error.error)))
         }
@@ -69,8 +70,8 @@ private[api] case class Works(archive_token: String,
   }
 
   // Find works on the Archive
-  def checkUrls(urls: List[String])(implicit ec: ExecutionContext): Future[Either[Throwable, ArchiveResponse]] = {
-    val originalUrls = Json.writeJson(OriginalUrls(urls))
+  def checkUrls(request: FindWorkRequest)(implicit ec: ExecutionContext): Future[Either[Throwable, ArchiveResponse]] = {
+    val originalUrls = Json.writeJson(request)
 
     val check = http.post(checkUrlPath, originalUrls)
 
@@ -80,7 +81,7 @@ private[api] case class Works(archive_token: String,
         resp.status match {
           case status if 200 until 299 contains status =>
             if (resp.body != JNothing)
-              Right(FindUrlResponse(status, checkResponses(resp.body)))
+              Right(FindWorkResponse(status, checkResponses(resp.body)))
             else
               Right(ArchiveApiError(resp.status, List("No information returned from remote server")))
 
