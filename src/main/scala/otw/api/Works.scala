@@ -33,7 +33,7 @@ private[api] case class Works(archive_token: String,
         resp.status match {
           case status if (200 until 299) contains status =>
             if (resp.body != JNothing)
-              Right(createResponse(resp.body))
+              Right(createResponse(resp.status, resp.body))
             else
               Right(ArchiveApiError(resp.status, List("No information returned from remote server")))
 
@@ -51,21 +51,21 @@ private[api] case class Works(archive_token: String,
     }
   }
 
-  private def createResponse(value: JValue) = {
-    val status = Json.readJson[Map[String, JValue]](value).get("status")
+  private def createResponse(status: Int, value: JValue) = {
     status match {
-      case Some(JString("ok")) | Some(JString("created")) => Json.readJson[CreateResponse](value)
+      case 200 | 201 => // ok and created
+        Json.readJson[CreateResponse](value)
 
-      case Some(JString("forbidden")) =>
+      case 403 => // forbidden
         val response = Json.readJson[CreateResponse](value)
         ArchiveApiError(403, response.messages)
 
-      case Some(JString("bad_request")) =>
+      case 400 =>
         val response = Json.readJson[CreateResponse](value)
         ArchiveApiError(400, response.messages)
 
       case _                                              =>
-        ArchiveApiError(400, List("Cannot parse response into a valid Work object"))
+        ArchiveApiError(400, List(s"Cannot parse response into a valid Work object. Status: $status, Body: ${value}"))
     }
   }
 
@@ -100,7 +100,7 @@ private[api] case class Works(archive_token: String,
       status match {
         case Some("ok")        => Json.readJson[WorkFoundResponse](value)
         case Some("not_found") => Json.readJson[WorkNotFoundResponse](value)
-        case _                 => ArchiveApiError(400, List("Cannot parse response into a valid Work object"))
+        case _                 => ArchiveApiError(400, List(s"Cannot parse response into a valid Work object: $status"))
       }
     }
   }
