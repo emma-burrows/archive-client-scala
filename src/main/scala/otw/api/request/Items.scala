@@ -2,7 +2,8 @@ package otw.api.request
 
 sealed trait Item
 
-case class Work(url: String,
+case class Work(id: String,
+                url: String,
                 author: String,
                 email: String,
                 title: String,
@@ -12,10 +13,11 @@ case class Work(url: String,
                 categoryString: String,
                 relationshipString: String,
                 characterString: String,
-                chapter_urls: List[String])
+                chapterUrls: List[String])
           extends Item
 
-case class Bookmark(url: String,
+case class Bookmark(id: String,
+                    url: String,
                     author: String,
                     email: String,
                     title: String,
